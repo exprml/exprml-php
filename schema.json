@@ -1,0 +1,471 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExprML Schema",
+  "description": "ExprML is a YAML-based expression evaluator framework.\nThis schema defines the structure of the ExprML language.\n",
+  "$ref": "#/definitions/Expr",
+  "definitions": {
+    "Expr": {
+      "description": "An expression is a JSON value that represents a computation.\n",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Eval"
+        },
+        {
+          "$ref": "#/definitions/Scalar"
+        },
+        {
+          "$ref": "#/definitions/Ref"
+        },
+        {
+          "$ref": "#/definitions/Obj"
+        },
+        {
+          "$ref": "#/definitions/Arr"
+        },
+        {
+          "$ref": "#/definitions/Json"
+        },
+        {
+          "$ref": "#/definitions/Iter"
+        },
+        {
+          "$ref": "#/definitions/Elem"
+        },
+        {
+          "$ref": "#/definitions/Call"
+        },
+        {
+          "$ref": "#/definitions/Cases"
+        },
+        {
+          "$ref": "#/definitions/OpUnary"
+        },
+        {
+          "$ref": "#/definitions/OpBinary"
+        },
+        {
+          "$ref": "#/definitions/OpVariadic"
+        }
+      ]
+    },
+    "Eval": {
+      "description": "`Eval` block is a JSON object that represents an expression accompanied by function or variable definitions.\n",
+      "type": "object",
+      "properties": {
+        "where": {
+          "description": "`where` property is a list of function or variable definitions that can be referenced in the `eval` property.\nEach definition defines a function or definition that maps a the identifier of the definition to an expression.\nTo define a function, the identifier must be a string that begins with '$' and followed by arguments enclosed by '(' and ')'.\nThe arguments begin with '$' separated by ','.\nTo define a variable, the identifier must be a string that begins with '$'.\n",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "maxProperties": 1,
+            "minProperties": 1,
+            "patternProperties": {
+              "^\\$[_a-zA-Z][_a-zA-Z0-9]*(\\(\\s*\\)|\\(\\s*\\$[_a-zA-Z][_a-zA-Z0-9]*(\\s*,\\s*\\$[_a-zA-Z][_a-zA-Z0-9]*)*(\\s*,)?\\s*\\))?$": {
+                "$ref": "#/definitions/Expr"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "eval": {
+          "description": "`eval` property is a expression to evaluate, which can reference the functions and variables in the `where` property.\n",
+          "$ref": "#/definitions/Expr"
+        }
+      },
+      "required": [
+        "eval"
+      ],
+      "additionalProperties": false
+    },
+    "Scalar": {
+      "description": "`Scalar` literal represents a scalar value which is a number, a boolean, or a string.\nThe strign value must begin with '`' and end with '`'.\n",
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "string",
+          "pattern": "^`.*`$"
+        }
+      ]
+    },
+    "Ref": {
+      "description": "`Ref` literal represents a reference for a variable.\nThe identifier must be a string that begins with '$'.\n",
+      "type": "string",
+      "pattern": "^\\$[_a-zA-Z][_a-zA-Z0-9]*$"
+    },
+    "Obj": {
+      "description": "`Obj` block constructs a JSON object.\n",
+      "type": "object",
+      "properties": {
+        "obj": {
+          "description": "`obj` property takes a JSON object which maps string keys to expressions.\n",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Expr"
+          }
+        }
+      },
+      "required": [
+        "obj"
+      ],
+      "additionalProperties": false
+    },
+    "Arr": {
+      "description": "`Arr` block constructs a JSON array.\n",
+      "type": "object",
+      "properties": {
+        "arr": {
+          "description": "`arr` property takes a JSON array which arranges expressions sequentially.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          }
+        }
+      },
+      "required": [
+        "arr"
+      ],
+      "additionalProperties": false
+    },
+    "Json": {
+      "description": "`Json` block constructs a raw JSON value as is.\n",
+      "type": "object",
+      "properties": {
+        "json": {
+          "description": "`json` property takes a JSON value excluding null.\n",
+          "$ref": "#/definitions/Json/definitions/NonNull"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "additionalProperties": false,
+      "definitions": {
+        "NonNull": {
+          "description": "`NonNull` represents a JOSN value excluding null.\n",
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Json/definitions/NonNull"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Json/definitions/NonNull"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Iter": {
+      "description": "`Iter` block constructs a new collection by iterating over the given collection.\nThe collection must evaluate to a JSON value that is one of a string, an array, or an object.\nA property that begins with `for` which is followed by two iteration variables enclosed by '(' and ')' is required.\nThe iteration variables must be strings that begin with '$' and be separated by ','.\nFor a string:\n  - the iteration is over its characters and constructs a JSON array.\n  - the first variable references the index of each character in the string.\n  - the second variable references each character in the string.\nFor an array:\n  - the iteration is over its elements and constructs a JSON array.\n  - the first variable references the index of each element in the array.\n  - the second variable references each element in the array.\nFor an object:\n  - the iteration is over its key-value pairs and constructs a JSON object.\n  - the first variable references each key in the object.\n  - the second variable references each value in the object.\n`do` property is required.\n`if` property is optional.\nIf `if` property exists and it evaluates to false, the evaluation of the `do` property is skipped.\nIf `if` property exists and evaluates to not a boolean value, the evaluation fails.\n",
+      "oneOf": [
+        {
+          "type": "object",
+          "patternProperties": {
+            "^for\\(\\s*\\$[_a-zA-Z][_a-zA-Z0-9]*\\s*,\\s*\\$[_a-zA-Z][_a-zA-Z0-9]*\\s*\\)$": {
+              "$ref": "#/definitions/Expr"
+            }
+          },
+          "properties": {
+            "do": {
+              "$ref": "#/definitions/Expr"
+            }
+          },
+          "required": [
+            "do"
+          ],
+          "minProperties": 2,
+          "maxProperties": 2,
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^for\\(\\s*\\$[_a-zA-Z][_a-zA-Z0-9]*\\s*,\\s*\\$[_a-zA-Z][_a-zA-Z0-9]*\\s*\\)$": {
+              "$ref": "#/definitions/Expr"
+            }
+          },
+          "properties": {
+            "do": {
+              "$ref": "#/definitions/Expr"
+            },
+            "if": {
+              "$ref": "#/definitions/Expr"
+            }
+          },
+          "required": [
+            "do",
+            "if"
+          ],
+          "minProperties": 3,
+          "maxProperties": 3,
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Elem": {
+      "description": "`Elem` block extracts an element at the specified position from a collection.\nThe collection must evaluate to a JSON value that is one of a string, an array, or an object.\n",
+      "type": "object",
+      "properties": {
+        "get": {
+          "description": "`get` property takes a position at a collection.\nFor a string, if the position is not an integer number index, the evaluation fails.\nFor an array, if the position is not an integer number index, the evaluation fails.\nFor an object, if the position is not a string key, the evaluation fails.\nIf the position is not found in the collection, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        },
+        "from": {
+          "description": "`from` property takes a collection.\nIf the given value is evaluated as not a collection, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        }
+      },
+      "required": [
+        "get",
+        "from"
+      ],
+      "additionalProperties": false
+    },
+    "Call": {
+      "description": "`Call` block invokes a function with the given arguments.\nIf the function is not found, the evaluation fails.\nIf the given arguments do not cover the defined arguments, the evaluation fails.\n",
+      "type": "object",
+      "patternProperties": {
+        "^\\$[_a-zA-Z][_a-zA-Z0-9]*$": {
+          "type": "object",
+          "patternProperties": {
+            "^\\$[_a-zA-Z][_a-zA-Z0-9]*$": {
+              "$ref": "#/definitions/Expr"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false
+    },
+    "Cases": {
+      "description": "`Cases` block selects one of the branches based on the conditions.\n",
+      "type": "object",
+      "properties": {
+        "cases": {
+          "description": "`cases` property is a list of conditional cases.\nConditions are evaluated from the top, and the first case that has `when` property which evaluates `true` or has 'otherwise' property is selected.\nIf no case is selected, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/Cases/definitions/CasesWhenThen"
+              },
+              {
+                "$ref": "#/definitions/Cases/definitions/CasesOtherwise"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "additionalProperties": false,
+      "definitions": {
+        "CasesWhenThen": {
+          "description": "`CasesWhenThen` block is a conditional case consists of `when` and `then` properties.\n",
+          "type": "object",
+          "properties": {
+            "when": {
+              "description": "`when` property is a condition to evaluate.\nIf this expression evaluates to not a boolean value, the evaluation fails.\n",
+              "$ref": "#/definitions/Expr"
+            },
+            "then": {
+              "description": "`then` property is an expression to evaluate if this case is selected.\n",
+              "$ref": "#/definitions/Expr"
+            }
+          },
+          "required": [
+            "when",
+            "then"
+          ],
+          "additionalProperties": false
+        },
+        "CasesOtherwise": {
+          "description": "`CasesOtherwise` block is a default case consists of `otherwise` property.\n",
+          "type": "object",
+          "properties": {
+            "otherwise": {
+              "description": "`otherwise` property is an expression to evaluate if this case is selected.\n",
+              "$ref": "#/definitions/Expr"
+            }
+          },
+          "required": [
+            "otherwise"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "OpUnary": {
+      "description": "`OpUnary` block applies an builtin operation with one operand.\n",
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "len": {
+          "description": "`len` operation returns the length of the operand.\nFor a string, it returns the number of characters.\nFor an array, it returns the number of elements.\nFor an object, it returns the number of key-value pairs.\nIf the operand is not a collection, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        },
+        "not": {
+          "description": "`not` operation returns the negation of the operand.\nIf the operand evaluates to not a boolean value, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        },
+        "flat": {
+          "description": "`flat` operation returns the flattened JSON array of the operand.\nIf the operand is not evaluated as an array of arrays, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        },
+        "floor": {
+          "description": "`floor` operation returns the maximum integer value that is less than or equal to the operand.\nIf the operand is not evaluated as a number, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        },
+        "ceil": {
+          "description": "`ceil` operation returns the minimum integer value that is greater than or equal to the operand.\nIf the operand is not evaluated as a number, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        },
+        "abort": {
+          "description": "`abort` operation always fails the evaluation.\nIf the operand evaluates to not a string, the evaluation fails.\n",
+          "$ref": "#/definitions/Expr"
+        }
+      }
+    },
+    "OpBinary": {
+      "description": "`OpBinary` block applies an builtin operation with two operands.\n",
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "sub": {
+          "description": "`sub` operation returns the subtraction of the two operands.\nIf the operands are not evaluated as numbers, the evaluation fails.\nIf the result is to be not a finite number, the evaluation fails.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        },
+        "div": {
+          "description": "`div` operation returns the division of the two operands.\nIf the operands are not evaluated as numbers, the evaluation fails.\nIf the result is to be not a finite number, the evaluation fails.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        },
+        "eq": {
+          "description": "`eq` operation returns the equality of the two operands.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        },
+        "neq": {
+          "description": "`neq` operation returns the inequality of the two operands.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        },
+        "lt": {
+          "description": "`lt` operation returns the less-than comparison of the two operands.\nIf the operands are not evaluated as comparable JSON values, the evaluation fails, where comparable JSON values are numbers, booleans, strings, or arrays of comparable values.\nIf the operands have different types, the evaluation fails.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        },
+        "lte": {
+          "description": "`lte` operation returns the less-than-or-equal comparison of the two operands.\nThis behaves like the `lt` operation, but it also returns `true` if the two operands are equal.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        },
+        "gt": {
+          "description": "`gt` operation returns the greater-than comparison of the two operands.\nThis behaves like the `lte` operation, but it returns negation of the `lte` operation.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        },
+        "gte": {
+          "description": "`gte` operation returns the greater-than-or-equal comparison of the two operands.\nThis behaves like the `lt` operation, but it returns negation of the `lt` operation.\n",
+          "$ref": "#/definitions/OpBinary/definitions/OpBinaryOperand"
+        }
+      },
+      "definitions": {
+        "OpBinaryOperand": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "OpVariadic": {
+      "description": "`OpVariadic` block applies an builtin operation with variadic operands.\n",
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "add": {
+          "description": "`add` operation returns the sum of the operands.\nIf operands are empty, the result is 0.\nIf the operands are not evaluated as numbers, the evaluation fails.\nIf the result is to be not a finite number, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          }
+        },
+        "mul": {
+          "description": "`mul` operation returns the product of the operands.\nIf operands are empty, the result is 1.\nIf the operands are not evaluated as numbers, the evaluation fails.\nIf the result is to be not a finite number, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          }
+        },
+        "and": {
+          "description": "`and` operation returns the logical AND of the operands.\nIf operands are empty, the result is true.\nIf the operands are not evaluated as booleans, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          }
+        },
+        "or": {
+          "description": "`or` operation returns the logical OR of the operands.\nIf operands are empty, the result is false.\nIf the operands are not evaluated as booleans, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          }
+        },
+        "cat": {
+          "description": "`cat` operation returns the concatenation of the operands.\nIf operands are empty, the result is an empty string.\nIf the operands are not evaluated as strings, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          }
+        },
+        "min": {
+          "description": "`min` operation returns the minimum value of the one or more operands.\nIf operands are not evaluated as numbers, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          },
+          "minItems": 1
+        },
+        "max": {
+          "description": "`max` operation returns the maximum value of the one or more operands.\nIf operands are not evaluated as numbers, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          },
+          "minItems": 1
+        },
+        "merge": {
+          "description": "`merge` operation returns the merged JSON object of the operands.\nIf operands are empty, the result is an empty object.\nIf the operands are not evaluated as JSON objects, the evaluation fails.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expr"
+          }
+        }
+      }
+    }
+  }
+}
