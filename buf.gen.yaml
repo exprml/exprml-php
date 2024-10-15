@@ -7,8 +7,6 @@ managed:
       value: Exprml\PB\Exprml\V1
     - file_option: php_metadata_namespace
       value: Exprml\PB\Exprml\V1\GPBMetadata
-    - file_option: php_class_prefix
-      value: PB
 plugins:
   - remote: buf.build/protocolbuffers/php:v28.0
     out: ../build/gen/pb
