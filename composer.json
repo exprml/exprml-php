@@ -12,8 +12,8 @@
   "autoload": {
     "psr-4": {
       "Exprml\\": [
-        "src/",
-        "build/gen/"
+        "src/Exprml/",
+        "build/gen/pb/Exprml/"
       ]
     }
   },

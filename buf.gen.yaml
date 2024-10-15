@@ -3,8 +3,12 @@ version: v2
 managed:
   enabled: true
   override:
-    - file_option: go_package_prefix
-      value: github.com/exprml/exprml-go/pb
+    - file_option: php_namespace
+      value: Exprml\PB\Exprml\V1
+    - file_option: php_metadata_namespace
+      value: Exprml\PB\Exprml\V1\GPBMetadata
+    - file_option: php_class_prefix
+      value: PB
 plugins:
   - remote: buf.build/protocolbuffers/php:v28.0
-    out: ../build/gen
+    out: ../build/gen/pb
