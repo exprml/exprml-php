@@ -25,4 +25,4 @@ testdata: ## make testdata BRANCH=main
 
 .PHONY: test
 test: ## make test
-	vendor/phpunit/phpunit/phpunit --debug tests
+	vendor/phpunit/phpunit/phpunit tests
