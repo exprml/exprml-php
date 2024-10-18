@@ -14,15 +14,14 @@ use Exprml\PB\Exprml\V1\Expr\Path;
 use Exprml\PB\Exprml\V1\ParseInput;
 use Exprml\PB\Exprml\V1\Value;
 use Exprml\PB\Exprml\V1\Value\Type;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class EvaluatorTest extends TestCase
 {
-    /** @var array */
-    private $testcases = [];
-
-    protected function setUp(): void
+    public static function provideTestEvaluate(): array
     {
+        $testcases = [];
         $dataDir = join(DIRECTORY_SEPARATOR, [__DIR__, "..", "testdata", "evaluator"]);
         $filePaths = [$dataDir];
         while (count($filePaths) > 0) {
@@ -41,101 +40,103 @@ class EvaluatorTest extends TestCase
             }
             if (str_ends_with($path, ".in.yaml")) {
                 $key = mb_strimwidth($path, 0, strlen($path) - strlen(".in.yaml"));
-                if (!array_key_exists($key, $this->testcases)) {
-                    $this->testcases[$key] = new EvaluatorTestcase;
+                if (!array_key_exists($key, $testcases)) {
+                    $testcases[$key] = new EvaluatorTestcase;
                 }
-                $this->testcases[$key]->inputYaml = file_get_contents($path);
+                $testcases[$key]->inputYaml = file_get_contents($path);
             } elseif (str_ends_with($path, ".want.yaml")) {
                 $key = mb_strimwidth($path, 0, strlen($path) - strlen(".want.yaml"));
-                if (!array_key_exists($key, $this->testcases)) {
-                    $this->testcases[$key] = new EvaluatorTestcase;
+                if (!array_key_exists($key, $testcases)) {
+                    $testcases[$key] = new EvaluatorTestcase;
                 }
                 $yaml = (new Decoder())->decode((new DecodeInput())->setYaml(file_get_contents($path)));
-                if ($yaml->getIsError()) {
-                    $this->fail($yaml->getErrorMessage());
+                assert(!$yaml->getIsError(), $yaml->getErrorMessage());
+
+                if ($yaml->getValue()->getObj()->offsetExists("want_value")) {
+                    /** @var Value $wantValue */
+                    $wantValue = $yaml->getValue()->getObj()["want_value"];
+                    $testcases[$key]->wantValue = $wantValue;
+                } else {
+                    $testcases[$key]->wantValue = null;
                 }
-                /** @var Value $wantValue */
-                $wantValue = $yaml->getValue()->getObj()["want_value"];
-                if ($wantValue != null) {
-                    $this->testcases[$key]->wantValue = $wantValue;
-                }
-                /** @var Value $wantError */
-                $wantError = $yaml->getValue()->getObj()["want_error"];
-                if ($wantError != null) {
-                    $this->testcases[$key]->wantError = $wantError->getBool();
+                if ($yaml->getValue()->getObj()->offsetExists("want_error")) {
+                    /** @var Value $wantError */
+                    $wantError = $yaml->getValue()->getObj()["want_error"];
+                    $testcases[$key]->wantError = $wantError->getBool();
+                } else {
+                    $testcases[$key]->wantError = null;
                 }
             }
         }
-    }
-
-    public function testEvaluate()
-    {
-        $names = array_keys($this->testcases);
-        foreach ($names as $name) {
-            print_r($name . "\n");
-            /** @var EvaluatorTestcase $t */
-            $t = $this->testcases[$name];
-
-            $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($t->inputYaml));
-            $this->assertFalse($decodeResult->getIsError());
-
-            $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
-            $this->assertFalse($parseResult->getIsError());
-
-            $sut = new Evaluator(new Config());
-            $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
-
-            if ($t->wantError) {
-                $this->assertNotEquals(EvaluateOutput\Status::OK, $got->getStatus());
-            } else {
-                $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
-                $msg = $this->checkValueEqual([], $t->wantValue, $got->getValue());
-                if ($msg != null) {
-                    $this->fail($msg);
-                }
-            }
-
+        $data = [];
+        foreach ($testcases as $name => $testcase) {
+            $data[$name] = [$testcase];
         }
+        return $data;
     }
 
-    public function testEvaluate_Extension()
+    public static function provideTestEvaluate_Extension(): array
     {
-        $testcases = [
-            "Ref" => new EvaluatorExtensionTestcase(
-                '$test_func',
-                (new Value())->setType(Type::OBJ)->setObj([]),
-            ),
-            "Call" => new EvaluatorExtensionTestcase(
-                '$test_func: { $arg: "`value`" }',
-                (new Value())->setType(Type::OBJ)->setObj([
-                    '$arg' => (new Value())->setType(Type::STR)->setStr("value"),
-                ]),
-            ),
+        return [
+            "Ref" => [
+                new EvaluatorExtensionTestcase(
+                    '$test_func',
+                    (new Value())->setType(Type::OBJ)->setObj([]),
+                )],
+            "Call" => [
+                new EvaluatorExtensionTestcase(
+                    '$test_func: { $arg: "`value`" }',
+                    (new Value())->setType(Type::OBJ)->setObj([
+                        '$arg' => (new Value())->setType(Type::STR)->setStr("value"),
+                    ]),
+                )],
         ];
+    }
 
-        foreach ($testcases as $name => $t) {
-            print_r($name . "\n");
-            $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($t->inputYaml));
-            $this->assertFalse($decodeResult->getIsError());
 
-            $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
-            $this->assertFalse($parseResult->getIsError());
+    #[DataProvider('provideTestEvaluate')] public function testEvaluate(EvaluatorTestcase $testcase)
+    {
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
+        $this->assertFalse($decodeResult->getIsError());
 
-            $sut = new Evaluator((new Config())->setExtension([
-                '$test_func' => function (Path $path, array $args): EvaluateOutput {
-                    return (new EvaluateOutput())->setValue((new Value())
-                        ->setType(Type::OBJ)
-                        ->setObj($args));
-                }
-            ]));
-            $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
+        $this->assertFalse($parseResult->getIsError());
+
+        $sut = new Evaluator(new Config());
+        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+
+        if ($testcase->wantError) {
+            $this->assertNotEquals(EvaluateOutput\Status::OK, $got->getStatus());
+        } else {
             $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
-            $msg = $this->checkValueEqual([], $t->wantValue, $got->getValue());
+            $msg = $this->checkValueEqual([], $testcase->wantValue, $got->getValue());
             if ($msg != null) {
                 $this->fail($msg);
             }
         }
+    }
 
+    #[DataProvider('provideTestEvaluate_Extension')] public function testEvaluate_Extension(EvaluatorExtensionTestcase $testcase)
+    {
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
+        $this->assertFalse($decodeResult->getIsError());
+
+        $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
+        $this->assertFalse($parseResult->getIsError());
+
+        $sut = new Evaluator((new Config())->setExtension([
+            '$test_func' => function (Path $path, array $args): EvaluateOutput {
+                return (new EvaluateOutput())->setValue((new Value())
+                    ->setType(Type::OBJ)
+                    ->setObj($args));
+            }
+        ]));
+        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
+        $msg = $this->checkValueEqual([], $testcase->wantValue, $got->getValue());
+        if ($msg != null) {
+            $this->fail($msg);
+        }
     }
 
     public function testEvaluate_BeforeEvaluate()

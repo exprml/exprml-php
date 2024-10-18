@@ -13,15 +13,14 @@ use Exprml\PB\Exprml\V1\EvaluateOutput;
 use Exprml\PB\Exprml\V1\ParseInput;
 use Exprml\PB\Exprml\V1\Value;
 use Exprml\PB\Exprml\V1\Value\Type;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ParserTest extends TestCase
 {
-    /** @var array */
-    private $testcases = [];
-
-    protected function setUp(): void
+    public static function provideTestParse(): array
     {
+        $testcases = [];
         $dataDir = join(DIRECTORY_SEPARATOR, [__DIR__, "..", "testdata", "parser", "error"]);
         $filePaths = [$dataDir];
         while (count($filePaths) > 0) {
@@ -40,27 +39,26 @@ class ParserTest extends TestCase
             }
             if (str_ends_with($path, ".in.yaml")) {
                 $key = mb_strimwidth($path, 0, strlen($path) - strlen(".in.yaml"));
-                if (!array_key_exists($key, $this->testcases)) {
-                    $this->testcases[$key] = new EvaluatorTestcase;
+                if (!array_key_exists($key, $testcases)) {
+                    $testcases[$key] = new ParserTestcase();
                 }
-                $this->testcases[$key]->inputYaml = file_get_contents($path);
+                $testcases[$key]->inputYaml = file_get_contents($path);
             }
         }
+        $data = [];
+        foreach ($testcases as $name => $testcase) {
+            $data[$name] = [$testcase];
+        }
+        return $data;
     }
 
-    public function testParse_Error()
+    #[DataProvider('provideTestParse')]
+    public function testParse_Error(ParserTestcase $testcase)
     {
-        $names = array_keys($this->testcases);
-        foreach ($names as $name) {
-            print_r($name . "\n");
-            /** @var ParserTestcase $t */
-            $t = $this->testcases[$name];
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
+        $this->assertFalse($decodeResult->getIsError());
 
-            $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($t->inputYaml));
-            $this->assertFalse($decodeResult->getIsError());
-
-            $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
-            $this->assertTrue($parseResult->getIsError());
-        }
+        $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
+        $this->assertTrue($parseResult->getIsError());
     }
 }

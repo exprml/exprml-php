@@ -27,7 +27,8 @@ class Config
     /**
      * $extension is a map of extension name to extension function.
      * Each name must be a string that matches the pattern '^\$[_a-zA-Z][_a-zA-Z0-9]*$'.
-     * Each function must have the signature `function (Path $path, array $args): EvaluateOutput`.
+     * Each function must have the signature `function (Path $path, array $args): EvaluateOutput`, where $args is an associated array that maps string keys to Value argument values.
+     * The string keys must be match '^\$[_a-zA-Z][_a-zA-Z0-9]*$'.
      * @param $extension array<string, callable>
      */
     public function setExtension(array $extension): Config
