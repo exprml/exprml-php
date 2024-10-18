@@ -27,7 +27,6 @@ class Evaluator
         $this->config = $config;
     }
 
-    /** @noinspection PhpUnhandledExceptionInspection */
     public function evaluateExpr(EvaluateInput $input): EvaluateOutput
     {
         try {

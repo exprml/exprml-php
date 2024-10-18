@@ -10,6 +10,7 @@ use Exprml\PB\Exprml\V1\DecodeInput;
 use Exprml\PB\Exprml\V1\DefStack;
 use Exprml\PB\Exprml\V1\EvaluateInput;
 use Exprml\PB\Exprml\V1\EvaluateOutput;
+use Exprml\PB\Exprml\V1\Expr\Path;
 use Exprml\PB\Exprml\V1\ParseInput;
 use Exprml\PB\Exprml\V1\Value;
 use Exprml\PB\Exprml\V1\Value\Type;
@@ -95,6 +96,96 @@ class EvaluatorTest extends TestCase
             }
 
         }
+    }
+
+    public function testEvaluate_Extension()
+    {
+        $testcases = [
+            "Ref" => new EvaluatorExtensionTestcase(
+                '$test_func',
+                (new Value())->setType(Type::OBJ)->setObj([]),
+            ),
+            "Call" => new EvaluatorExtensionTestcase(
+                '$test_func: { $arg: "`value`" }',
+                (new Value())->setType(Type::OBJ)->setObj([
+                    '$arg' => (new Value())->setType(Type::STR)->setStr("value"),
+                ]),
+            ),
+        ];
+
+        foreach ($testcases as $name => $t) {
+            print_r($name . "\n");
+            $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($t->inputYaml));
+            $this->assertFalse($decodeResult->getIsError());
+
+            $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
+            $this->assertFalse($parseResult->getIsError());
+
+            $sut = new Evaluator((new Config())->setExtension([
+                '$test_func' => function (Path $path, array $args): EvaluateOutput {
+                    return (new EvaluateOutput())->setValue((new Value())
+                        ->setType(Type::OBJ)
+                        ->setObj($args));
+                }
+            ]));
+            $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+            $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
+            $msg = $this->checkValueEqual([], $t->wantValue, $got->getValue());
+            if ($msg != null) {
+                $this->fail($msg);
+            }
+        }
+
+    }
+
+    public function testEvaluate_BeforeEvaluate()
+    {
+        $evalPaths = [];
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml('cat: ["`Hello`", "`, `", "`ExprML`", "`!`"]'));
+        $this->assertFalse($decodeResult->getIsError());
+
+        $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
+        $this->assertFalse($parseResult->getIsError());
+
+        $sut = new Evaluator((new Config())->setBeforeEvaluate(
+            function (EvaluateInput $input) use (&$evalPaths): void {
+                $evalPaths[] = \Exprml\Path::format($input->getExpr()->getPath());
+            }
+        ));
+        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
+        $this->assertEquals([
+            "/",
+            "/cat/0",
+            "/cat/1",
+            "/cat/2",
+            "/cat/3",
+        ], $evalPaths);
+    }
+
+    public function testEvaluate_AfterEvaluate()
+    {
+        $evalTypes = [];
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml('cat: ["`Hello`", "`, `", "`ExprML`", "`!`"]'));
+        $this->assertFalse($decodeResult->getIsError());
+
+        $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
+        $this->assertFalse($parseResult->getIsError());
+
+        $sut = new Evaluator((new Config())->setAfterEvaluate(
+            function (EvaluateInput $input, EvaluateOutput $output) use (&$evalTypes): void {
+                $evalTypes[] = $output->getValue()->getType();
+            }
+        ));
+        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
+        $this->assertEquals([
+            Type::STR,
+            Type::STR,
+            Type::STR,
+            Type::STR,
+            Type::STR,
+        ], $evalTypes);
     }
 
     /**
