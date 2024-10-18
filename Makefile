@@ -33,4 +33,5 @@ docs: ## make docs
 		--directory=src \
 		--directory=build/gen/pb/Exprml/PB \
 		--visibility=public \
+		--defaultpackagename=Exprml \
 		--target=docs/api
