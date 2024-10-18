@@ -101,7 +101,7 @@ printf($encodeResult->getResult() . "\n");
 // => 'Calling: $ext_func($arg=ExprML)'
 ```
 
-### Hook PHP functions before and after execution of EvaluateExpr
+### Hook PHP functions before and after each evaluation of nested expressions
 
 ```php
 <?php
