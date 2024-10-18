@@ -251,7 +251,7 @@ class Evaluator
                 $result = [];
                 foreach (Evaluator::sortedKeys(iterator_to_array($inVal->getValue()->getObj())) as $key) {
                     /** @var PBValue $val */
-                    $val = $inVal->getValue()->getObj()->offsetGet($key);
+                    $val = $inVal->getValue()->getObj()[$key];
                     $st = $input->getDefStack();
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forPos, Value::str($key)));
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forElem, $val));
@@ -372,6 +372,7 @@ class Evaluator
 
         $def = $st->getDef();
         foreach ($def->getArgs() as $argName) {
+            /** @noinspection PhpUnhandledExceptionInspection */
             if (!$call->getArgs()->offsetExists($argName)) {
                 return Evaluator::errorArgumentMismatch($input->getExpr()->getPath(), $argName);
             }

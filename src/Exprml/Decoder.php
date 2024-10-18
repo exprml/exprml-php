@@ -9,7 +9,6 @@ use Exprml\PB\Exprml\V1\DecodeOutput;
 use Exprml\PB\Exprml\V1\Value as PBValue;
 use Exprml\PB\Exprml\V1\Value\Type as PBType;
 use Symfony\Component\Yaml\Yaml as SymfonyYaml;
-use function PHPUnit\Framework\assertEquals;
 
 class Decoder
 {
@@ -25,7 +24,11 @@ class Decoder
         }
     }
 
-    private static function convertFromPHP(mixed $yaml): PBValue
+    /**
+     * @param mixed $yaml
+     * @return PBValue
+     */
+    private static function convertFromPHP($yaml): PBValue
     {
         $v = new PBValue();
         switch (gettype($yaml)) {

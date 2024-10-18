@@ -8,7 +8,7 @@ use Exprml\PB\Exprml\V1\EvaluateOutput;
 class Config
 {
 
-    private array|null $extension = null;
+    private ?array $extension = null;
     private $beforeEvaluate = null;
     private $afterEvaluate = null;
 

@@ -14,7 +14,6 @@ use Exprml\PB\Exprml\V1\Expr\Path;
 use Exprml\PB\Exprml\V1\ParseInput;
 use Exprml\PB\Exprml\V1\Value;
 use Exprml\PB\Exprml\V1\Value\Type;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class EvaluatorTest extends TestCase
@@ -38,13 +37,13 @@ class EvaluatorTest extends TestCase
                 }
                 continue;
             }
-            if (str_ends_with($path, ".in.yaml")) {
+            if (preg_match("/^.*\.in\.yaml$/", $path)) {
                 $key = mb_strimwidth($path, 0, strlen($path) - strlen(".in.yaml"));
                 if (!array_key_exists($key, $testcases)) {
                     $testcases[$key] = new EvaluatorTestcase;
                 }
                 $testcases[$key]->inputYaml = file_get_contents($path);
-            } elseif (str_ends_with($path, ".want.yaml")) {
+            } elseif (preg_match("/^.*\.want\.yaml$/", $path)) {
                 $key = mb_strimwidth($path, 0, strlen($path) - strlen(".want.yaml"));
                 if (!array_key_exists($key, $testcases)) {
                     $testcases[$key] = new EvaluatorTestcase;
@@ -94,7 +93,12 @@ class EvaluatorTest extends TestCase
     }
 
 
-    #[DataProvider('provideTestEvaluate')] public function testEvaluate(EvaluatorTestcase $testcase)
+    /**
+     * @dataProvider provideTestEvaluate
+     * @param EvaluatorTestcase $testcase
+     * @return void
+     */
+    public function testEvaluate(EvaluatorTestcase $testcase)
     {
         $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
         $this->assertFalse($decodeResult->getIsError());
@@ -116,7 +120,12 @@ class EvaluatorTest extends TestCase
         }
     }
 
-    #[DataProvider('provideTestEvaluate_Extension')] public function testEvaluate_Extension(EvaluatorExtensionTestcase $testcase)
+    /**
+     * @dataProvider provideTestEvaluate_Extension
+     * @param EvaluatorExtensionTestcase $testcase
+     * @return void
+     */
+    public function testEvaluate_Extension(EvaluatorExtensionTestcase $testcase)
     {
         $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
         $this->assertFalse($decodeResult->getIsError());
@@ -195,7 +204,7 @@ class EvaluatorTest extends TestCase
      * @param Value $got
      * @return string|null
      */
-    private function checkValueEqual(array $path, Value $want, Value $got): string|null
+    private function checkValueEqual(array $path, Value $want, Value $got): ?string
     {
         if ($want->getType() != $got->getType()) {
             return sprintf("type mismatch: /%s", join("/", $path));

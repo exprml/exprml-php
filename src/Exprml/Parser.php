@@ -157,7 +157,7 @@ class Parser
                     $json = $value->getObj()["json"];
                     try {
                         Parser::checkNonNull($json);
-                    } catch (Exception) {
+                    } catch (Exception $e) {
                         throw new Exception(sprintf("invalid Json: %s: 'json' property cannot contain null", Path::format(Path::append($path, "json"))));
                     }
                     return $expr

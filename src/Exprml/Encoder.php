@@ -20,8 +20,7 @@ class Encoder
             if ($input->getFormat() === EncodeInput\Format::YAML) {
                 $flags = SymfonyYaml::DUMP_OBJECT_AS_MAP
                     | SymfonyYaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE
-                    | SymfonyYaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-                    | SymfonyYaml::DUMP_NUMERIC_KEY_AS_STRING;
+                    | SymfonyYaml::DUMP_MULTI_LINE_LITERAL_BLOCK;
                 return $r->setResult(SymfonyYaml::dump($y, 10, 2, $flags));
             } else {
                 return $r->setResult(json_encode($y, JSON_THROW_ON_ERROR));
@@ -33,7 +32,7 @@ class Encoder
         }
     }
 
-    private static function convertToPHP(PBValue $v): mixed
+    private static function convertToPHP(PBValue $v)
     {
         switch ($v->getType()) {
             case PBType::NULL:

@@ -12,11 +12,11 @@ class Path
      * @param (string|int) ...$pos
      * @return PBPath
      */
-    public static function append(PBPath $path, string|int ...$pos): PBPath
+    public static function append(PBPath $path, ...$pos): PBPath
     {
         $arr = iterator_to_array($path->getPos());
         foreach ($pos as $p) {
-            if(is_int($p)) {
+            if (is_int($p)) {
                 $arr[] = (new Pos)->setIndex($p);
             } else {
                 $arr[] = (new Pos)->setKey($p);

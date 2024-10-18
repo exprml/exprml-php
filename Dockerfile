@@ -1,6 +1,6 @@
 FROM --platform=linux/amd64 composer:2.2.24 AS composer
 
-FROM --platform=linux/amd64 php:8.3 AS workspace
+FROM --platform=linux/amd64 php:7.4 AS workspace
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 

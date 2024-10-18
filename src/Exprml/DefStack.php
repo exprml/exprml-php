@@ -11,14 +11,14 @@ use Exprml\PB\Exprml\V1\Value;
 
 class DefStack
 {
-    public static function register(PBDefStack|null $defStack, Definition $def): PBDefStack
+    public static function register(?PBDefStack $defStack, Definition $def): PBDefStack
     {
         return (new PBDefStack())
             ->setParent($defStack)
             ->setDef($def);
     }
 
-    public static function find(PBDefStack|null $defStack, string $ident): PBDefStack|null
+    public static function find(?PBDefStack $defStack, string $ident): ?PBDefStack
     {
         if ($defStack === null || $defStack->getDef() === null) {
             return null;
