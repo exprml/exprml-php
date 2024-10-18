@@ -14,8 +14,15 @@ class Path
      */
     public static function append(PBPath $path, string|int ...$pos): PBPath
     {
-        return (new PBPath)
-            ->setPos(array_merge(iterator_to_array($path->getPos()), $pos));
+        $arr = iterator_to_array($path->getPos());
+        foreach ($pos as $p) {
+            if(is_int($p)) {
+                $arr[] = (new Pos)->setIndex($p);
+            } else {
+                $arr[] = (new Pos)->setKey($p);
+            }
+        }
+        return (new PBPath)->setPos($arr);
     }
 
     public static function format(PBPath $path): string

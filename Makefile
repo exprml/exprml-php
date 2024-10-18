@@ -22,3 +22,7 @@ testdata: ## make testdata BRANCH=main
 	git clone -b ${BRANCH} https://github.com/exprml/exprml-testsuite.git
 	mv exprml-testsuite/testdata testdata
 	rm -rf exprml-testsuite
+
+.PHONY: test
+test: ## make test
+	vendor/phpunit/phpunit/phpunit tests

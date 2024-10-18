@@ -37,7 +37,7 @@ class Parser
         } catch (Exception $e) {
             return (new ParseOutput())
                 ->setIsError(true)
-                ->setErrorMessage(sprintf("fail to parse: %v", $e->getMessage()));
+                ->setErrorMessage(sprintf("fail to parse: %s", $e->getMessage()));
         }
     }
 
@@ -94,7 +94,7 @@ class Parser
                                 throw new Exception(sprintf("invalid definition: %s: where clause must contain only objects but got %s", Path::format(Path::append($path, "where", $i)), $def->getType()));
                             }
 
-                            $keys = array_keys($def->getObj());
+                            $keys = array_keys(iterator_to_array($def->getObj()));
                             if (count($keys) !== 1) {
                                 throw new Exception(sprintf("invalid definition: %s: definition must contain one property", Path::format(Path::append($path, "where", $i))));
                             }
@@ -212,6 +212,9 @@ class Parser
                     /** @var PBValue $get */
                     $get = $value->getObj()["get"];
                     $elem->setGet(Parser::parseImpl(Path::append($path, "get"), $get));
+                    if (!$value->getObj()->offsetExists("from")) {
+                        throw new Exception(sprintf("invalid Elem: %s: 'from' property is required", Path::format($path)));
+                    }
                     /** @var PBValue $from */
                     $from = $value->getObj()["from"];
                     $elem->setFrom(Parser::parseImpl(Path::append($path, "from"), $from));

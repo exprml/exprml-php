@@ -33,9 +33,6 @@ class Encoder
         }
     }
 
-    /**
-     * @throws Exception
-     */
     private static function convertToPHP(PBValue $v): mixed
     {
         switch ($v->getType()) {
@@ -60,7 +57,7 @@ class Encoder
                 }
                 return $obj;
             default:
-                throw new Exception('Invalid type');
+                assert(false, new Exception('Invalid type'));
         }
     }
 }

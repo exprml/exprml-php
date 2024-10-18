@@ -9,6 +9,7 @@ use Exprml\PB\Exprml\V1\DecodeOutput;
 use Exprml\PB\Exprml\V1\Value as PBValue;
 use Exprml\PB\Exprml\V1\Value\Type as PBType;
 use Symfony\Component\Yaml\Yaml as SymfonyYaml;
+use function PHPUnit\Framework\assertEquals;
 
 class Decoder
 {
@@ -24,9 +25,6 @@ class Decoder
         }
     }
 
-    /**
-     * @throws Exception
-     */
     private static function convertFromPHP(mixed $yaml): PBValue
     {
         $v = new PBValue();
@@ -53,7 +51,7 @@ class Decoder
                 }
                 return $v->setType(PBType::OBJ)->setObj($obj);
             default:
-                throw new Exception('Unsupported type: ' . gettype($yaml));
+                assert(false, new Exception('Unsupported type: ' . gettype($yaml)));
         }
     }
 }
