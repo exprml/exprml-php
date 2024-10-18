@@ -125,11 +125,11 @@ $parseResult = (new Parser())
     ->parse((new ParseInput())->setValue($decodeResult->getValue()));
 
 $config = (new Config())
-    // Hook a function before the evaluation of each expression.
+    /* Hook a function before the evaluation of each expression. */
     ->setBeforeEvaluate(function (EvaluateInput $input) {
         printf("before:\t%s\n", Path::format($input->getExpr()->getPath()));
     })
-    // Hook a function after the evaluation of each expression.
+    /* Hook a function after the evaluation of each expression. */
     ->setAfterEvaluate(function (EvaluateInput $input, EvaluateOutput $output) {
         printf("after:\t%s --> %s\n",
             Path::format($input->getExpr()->getPath()),
