@@ -50,7 +50,7 @@ class OpBinary extends \Google\Protobuf\Internal\Message
      * }
      */
     public function __construct($data = NULL) {
-        \Exprml\PB\Exprml\V1\GPBMetadata\Expr::initOnce();
+        \Exprml\PBMetadata\Exprml\V1\Expr::initOnce();
         parent::__construct($data);
     }
 

@@ -50,7 +50,7 @@ class DecodeOutput extends \Google\Protobuf\Internal\Message
      * }
      */
     public function __construct($data = NULL) {
-        \Exprml\PB\Exprml\V1\GPBMetadata\Decoder::initOnce();
+        \Exprml\PBMetadata\Exprml\V1\Decoder::initOnce();
         parent::__construct($data);
     }
 

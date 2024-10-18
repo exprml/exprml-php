@@ -11,8 +11,13 @@
   "autoload": {
     "psr-4": {
       "Exprml\\": [
-        "src/Exprml/",
-        "build/gen/pb/Exprml/"
+        "src/Exprml/"
+      ],
+      "Exprml\\PB\\": [
+        "build/gen/pb/Exprml/PB/"
+      ],
+      "Exprml\\PBMetadata\\": [
+        "build/gen/pb/Exprml/PBMetadata/"
       ]
     }
   },

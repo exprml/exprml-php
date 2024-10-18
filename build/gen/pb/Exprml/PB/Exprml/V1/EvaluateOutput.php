@@ -58,7 +58,7 @@ class EvaluateOutput extends \Google\Protobuf\Internal\Message
      * }
      */
     public function __construct($data = NULL) {
-        \Exprml\PB\Exprml\V1\GPBMetadata\Evaluator::initOnce();
+        \Exprml\PBMetadata\Exprml\V1\Evaluator::initOnce();
         parent::__construct($data);
     }
 

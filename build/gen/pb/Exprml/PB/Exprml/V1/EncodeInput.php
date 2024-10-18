@@ -42,7 +42,7 @@ class EncodeInput extends \Google\Protobuf\Internal\Message
      * }
      */
     public function __construct($data = NULL) {
-        \Exprml\PB\Exprml\V1\GPBMetadata\Encoder::initOnce();
+        \Exprml\PBMetadata\Exprml\V1\Encoder::initOnce();
         parent::__construct($data);
     }
 

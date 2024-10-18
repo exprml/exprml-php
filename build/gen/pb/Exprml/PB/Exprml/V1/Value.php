@@ -74,7 +74,7 @@ class Value extends \Google\Protobuf\Internal\Message
      * }
      */
     public function __construct($data = NULL) {
-        \Exprml\PB\Exprml\V1\GPBMetadata\Value::initOnce();
+        \Exprml\PBMetadata\Exprml\V1\Value::initOnce();
         parent::__construct($data);
     }
 

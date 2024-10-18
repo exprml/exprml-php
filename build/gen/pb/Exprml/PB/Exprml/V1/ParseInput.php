@@ -34,7 +34,7 @@ class ParseInput extends \Google\Protobuf\Internal\Message
      * }
      */
     public function __construct($data = NULL) {
-        \Exprml\PB\Exprml\V1\GPBMetadata\Parser::initOnce();
+        \Exprml\PBMetadata\Exprml\V1\Parser::initOnce();
         parent::__construct($data);
     }
 
