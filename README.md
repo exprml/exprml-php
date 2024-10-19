@@ -153,7 +153,7 @@ $config = (new Config())
 # after:  / --> STR
 ```
 
-## PHP API documentation
+## API documentation
 
 https://exprml.github.io/exprml-php/docs/api/
 
