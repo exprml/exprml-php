@@ -161,15 +161,15 @@ Search.appendIndex(
             "summary": "Constructor.",
             "url": "classes/Exprml-PB-Exprml-V1-DecodeInput.html#method___construct"
         },                {
-            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\DecodeInput\u003A\u003AgetYaml\u0028\u0029",
-            "name": "getYaml",
-            "summary": "YAML\u0020string\u0020to\u0020decode.",
-            "url": "classes/Exprml-PB-Exprml-V1-DecodeInput.html#method_getYaml"
+            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\DecodeInput\u003A\u003AgetText\u0028\u0029",
+            "name": "getText",
+            "summary": "string\u0020in\u0020JSON\u0020\u0028and\u0020JSON\u002Dcompatible\u0020YAML\u0029.",
+            "url": "classes/Exprml-PB-Exprml-V1-DecodeInput.html#method_getText"
         },                {
-            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\DecodeInput\u003A\u003AsetYaml\u0028\u0029",
-            "name": "setYaml",
-            "summary": "YAML\u0020string\u0020to\u0020decode.",
-            "url": "classes/Exprml-PB-Exprml-V1-DecodeInput.html#method_setYaml"
+            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\DecodeInput\u003A\u003AsetText\u0028\u0029",
+            "name": "setText",
+            "summary": "string\u0020in\u0020JSON\u0020\u0028and\u0020JSON\u002Dcompatible\u0020YAML\u0029.",
+            "url": "classes/Exprml-PB-Exprml-V1-DecodeInput.html#method_setText"
         },                {
             "fqsen": "\\Exprml\\PB\\Exprml\\V1\\DecodeOutput",
             "name": "DecodeOutput",
@@ -336,15 +336,15 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Exprml-PB-Exprml-V1-EncodeInput-Format.html#method_value"
         },                {
-            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeInput\\Format\u003A\u003AYAML",
-            "name": "YAML",
-            "summary": "YAML\u0020format.",
-            "url": "classes/Exprml-PB-Exprml-V1-EncodeInput-Format.html#constant_YAML"
-        },                {
             "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeInput\\Format\u003A\u003AJSON",
             "name": "JSON",
             "summary": "JSON\u0020format.",
             "url": "classes/Exprml-PB-Exprml-V1-EncodeInput-Format.html#constant_JSON"
+        },                {
+            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeInput\\Format\u003A\u003AYAML",
+            "name": "YAML",
+            "summary": "JSON\u002Dcompatible\u0020YAML\u0020format.",
+            "url": "classes/Exprml-PB-Exprml-V1-EncodeInput-Format.html#constant_YAML"
         },                {
             "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeInput",
             "name": "EncodeInput",
@@ -416,15 +416,15 @@ Search.appendIndex(
             "summary": "Error\u0020message\u0020if\u0020is_error\u0020is\u0020true.",
             "url": "classes/Exprml-PB-Exprml-V1-EncodeOutput.html#method_setErrorMessage"
         },                {
-            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeOutput\u003A\u003AgetResult\u0028\u0029",
-            "name": "getResult",
-            "summary": "Encoded\u0020YAML\u0020or\u0020JSON\u0020string.",
-            "url": "classes/Exprml-PB-Exprml-V1-EncodeOutput.html#method_getResult"
+            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeOutput\u003A\u003AgetText\u0028\u0029",
+            "name": "getText",
+            "summary": "Encoded\u0020string\u0020in\u0020JSON\u0020\u0028or\u0020JSON\u002Dcompatible\u0020YAML\u0029.",
+            "url": "classes/Exprml-PB-Exprml-V1-EncodeOutput.html#method_getText"
         },                {
-            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeOutput\u003A\u003AsetResult\u0028\u0029",
-            "name": "setResult",
-            "summary": "Encoded\u0020YAML\u0020or\u0020JSON\u0020string.",
-            "url": "classes/Exprml-PB-Exprml-V1-EncodeOutput.html#method_setResult"
+            "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EncodeOutput\u003A\u003AsetText\u0028\u0029",
+            "name": "setText",
+            "summary": "Encoded\u0020string\u0020in\u0020JSON\u0020\u0028or\u0020JSON\u002Dcompatible\u0020YAML\u0029.",
+            "url": "classes/Exprml-PB-Exprml-V1-EncodeOutput.html#method_setText"
         },                {
             "fqsen": "\\Exprml\\PB\\Exprml\\V1\\EvaluateInput",
             "name": "EvaluateInput",
@@ -1941,75 +1941,10 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Exprml-Evaluator.html#method___construct"
         },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateExpr\u0028\u0029",
-            "name": "evaluateExpr",
+            "fqsen": "\\Exprml\\Evaluator\u003A\u003Aevaluate\u0028\u0029",
+            "name": "evaluate",
             "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateExpr"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateEval\u0028\u0029",
-            "name": "evaluateEval",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateEval"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateScalar\u0028\u0029",
-            "name": "evaluateScalar",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateScalar"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateRef\u0028\u0029",
-            "name": "evaluateRef",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateRef"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateObj\u0028\u0029",
-            "name": "evaluateObj",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateObj"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateArr\u0028\u0029",
-            "name": "evaluateArr",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateArr"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateJson\u0028\u0029",
-            "name": "evaluateJson",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateJson"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateIter\u0028\u0029",
-            "name": "evaluateIter",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateIter"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateElem\u0028\u0029",
-            "name": "evaluateElem",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateElem"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateCall\u0028\u0029",
-            "name": "evaluateCall",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateCall"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateCases\u0028\u0029",
-            "name": "evaluateCases",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateCases"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateOpUnary\u0028\u0029",
-            "name": "evaluateOpUnary",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateOpUnary"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateOpBinary\u0028\u0029",
-            "name": "evaluateOpBinary",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateOpBinary"
-        },                {
-            "fqsen": "\\Exprml\\Evaluator\u003A\u003AevaluateOpVariadic\u0028\u0029",
-            "name": "evaluateOpVariadic",
-            "summary": "",
-            "url": "classes/Exprml-Evaluator.html#method_evaluateOpVariadic"
+            "url": "classes/Exprml-Evaluator.html#method_evaluate"
         },                {
             "fqsen": "\\Exprml\\Parser",
             "name": "Parser",
