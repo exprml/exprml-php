@@ -1,9 +1,9 @@
 # exprml-php
 
 `exprml-php` is a PHP library implementing an ExprML interpreter.
-The ExprML is a programming language that can evaluate expressions represented in the YAML format.
+The ExprML is a programming language that can evaluate expressions represented in JSON (and JSON-compatible YAML).
 
-The language specification is available at https://github.com/exprml/exprml-language .
+The ExprML language specification is available at https://github.com/exprml/exprml-language .
 
 ## Installation
 
@@ -48,7 +48,7 @@ $evaluateResult = $evaluator
 $encodeResult = (new Encoder())
     ->encode((new EncodeInput())->setValue($evaluateResult->getValue()));
 
-printf($encodeResult->getResult() . "\n");
+printf($encodeResult->getText() . "\n");
 // => Hello, ExprML!
 ```
 
@@ -73,7 +73,7 @@ use Exprml\PB\Exprml\V1\Value;
 require 'vendor/autoload.php';
 
 $decodeResult = (new Decoder())
-    ->decode((new DecodeInput())->setYaml('$hello: { $name: "`ExprML Extension`" }'));
+    ->decode((new DecodeInput())->setText('$hello: { $name: "`ExprML Extension`" }'));
 $parseResult = (new Parser())
     ->parse((new ParseInput())->setValue($decodeResult->getValue()));
 
@@ -93,7 +93,7 @@ $evaluateResult = (new Evaluator($config))
     ->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr()));
 $encodeResult = (new Encoder())
     ->encode((new EncodeInput())->setValue($evaluateResult->getValue()));
-printf($encodeResult->getResult() . "\n");
+printf($encodeResult->getText() . "\n");
 // => 'Hello, ExprML Extension!'
 ```
 
@@ -116,7 +116,7 @@ use Exprml\PB\Exprml\V1\Value;
 require 'vendor/autoload.php';
 
 $decodeResult = (new Decoder())
-    ->decode((new DecodeInput())->setYaml("cat: ['`Hello`', '`, `', '`ExprML`', '`!`']"));
+    ->decode((new DecodeInput())->setText("cat: ['`Hello`', '`, `', '`ExprML`', '`!`']"));
 $parseResult = (new Parser())
     ->parse((new ParseInput())->setValue($decodeResult->getValue()));
 
