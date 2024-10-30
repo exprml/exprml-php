@@ -32,25 +32,21 @@ use Exprml\PB\Exprml\V1\ParseInput;
 require 'vendor/autoload.php';
 
 // Decode the input source code.
-$decodeResult = (new Decoder())->decode(
-    (new DecodeInput())->setYaml("cat: ['`Hello`', '`, `', '`ExprML`', '`!`']")
-);
+$decodeResult = (new Decoder())
+    ->decode((new DecodeInput())->setText("cat: ['`Hello`', '`, `', '`ExprML`', '`!`']"));
 
 // Parse AST from the decoded value.
-$parseResult = (new Parser())->parse(
-    (new ParseInput())->setValue($decodeResult->getValue())
-);
+$parseResult = (new Parser())
+    ->parse((new ParseInput())->setValue($decodeResult->getValue()));
 
 // Evaluate the parsed AST to get the result value.
 $evaluator = new Evaluator(new Config());
-$evaluateResult = $evaluator->evaluateExpr(
-    (new EvaluateInput())->setExpr($parseResult->getExpr())
-);
+$evaluateResult = $evaluator
+    ->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr()));
 
 // Encode the evaluated result to get the final output.
-$encodeResult = (new Encoder())->encode(
-    (new EncodeInput())->setValue($evaluateResult->getValue())
-);
+$encodeResult = (new Encoder())
+    ->encode((new EncodeInput())->setValue($evaluateResult->getValue()));
 
 printf($encodeResult->getResult() . "\n");
 // => Hello, ExprML!
@@ -77,28 +73,28 @@ use Exprml\PB\Exprml\V1\Value;
 require 'vendor/autoload.php';
 
 $decodeResult = (new Decoder())
-    ->decode((new DecodeInput())->setYaml('$ext_func: { $arg: "`ExprML`" }'));
+    ->decode((new DecodeInput())->setYaml('$hello: { $name: "`ExprML Extension`" }'));
 $parseResult = (new Parser())
     ->parse((new ParseInput())->setValue($decodeResult->getValue()));
 
 $config = (new Config())->setExtension([
     // Define an extension function named $hello, which takes an argument $name and returns a greeting string.
-    '$ext_func' => function (Path $path, array $args) {
-        /** @var Value $arg */
-        $arg = $args['$arg'];
+    '$hello' => function (Path $path, array $args) {
+        /** @var Value $name */
+        $name = $args['$name'];
         $ret = (new Value())
             ->setType(Value\Type::STR)
-            ->setStr('Calling: $ext_func($arg=' . $arg->getStr() . ')');
-        return (new EvaluateOutput())->setValue($ret);
+            ->setStr('Hello, ' . $name->getStr() . '!');
+        return (new EvaluateOutput())->setValue($name);
     },
 ]);
 
 $evaluateResult = (new Evaluator($config))
-    ->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr()));
+    ->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr()));
 $encodeResult = (new Encoder())
     ->encode((new EncodeInput())->setValue($evaluateResult->getValue()));
 printf($encodeResult->getResult() . "\n");
-// => 'Calling: $ext_func($arg=ExprML)'
+// => 'Hello, ExprML Extension!'
 ```
 
 ### Hook PHP functions before and after each evaluation of nested expressions
@@ -139,7 +135,7 @@ $config = (new Config())
         });
 
 (new Evaluator($config))
-    ->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr()));
+    ->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr()));
 # =>
 # before: /
 # before: /cat/0

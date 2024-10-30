@@ -17,11 +17,11 @@ use Google\Protobuf\Internal\GPBUtil;
 class DecodeInput extends \Google\Protobuf\Internal\Message
 {
     /**
-     * YAML string to decode.
+     * string in JSON (and JSON-compatible YAML).
      *
-     * Generated from protobuf field <code>string yaml = 1 [json_name = "yaml"];</code>
+     * Generated from protobuf field <code>string text = 1 [json_name = "text"];</code>
      */
-    protected $yaml = '';
+    protected $text = '';
 
     /**
      * Constructor.
@@ -29,8 +29,8 @@ class DecodeInput extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $yaml
-     *           YAML string to decode.
+     *     @type string $text
+     *           string in JSON (and JSON-compatible YAML).
      * }
      */
     public function __construct($data = NULL) {
@@ -39,27 +39,27 @@ class DecodeInput extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * YAML string to decode.
+     * string in JSON (and JSON-compatible YAML).
      *
-     * Generated from protobuf field <code>string yaml = 1 [json_name = "yaml"];</code>
+     * Generated from protobuf field <code>string text = 1 [json_name = "text"];</code>
      * @return string
      */
-    public function getYaml()
+    public function getText()
     {
-        return $this->yaml;
+        return $this->text;
     }
 
     /**
-     * YAML string to decode.
+     * string in JSON (and JSON-compatible YAML).
      *
-     * Generated from protobuf field <code>string yaml = 1 [json_name = "yaml"];</code>
+     * Generated from protobuf field <code>string text = 1 [json_name = "text"];</code>
      * @param string $var
      * @return $this
      */
-    public function setYaml($var)
+    public function setText($var)
     {
         GPBUtil::checkString($var, True);
-        $this->yaml = $var;
+        $this->text = $var;
 
         return $this;
     }

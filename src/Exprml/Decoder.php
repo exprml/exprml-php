@@ -15,7 +15,7 @@ class Decoder
     public function decode(DecodeInput $input): DecodeOutput
     {
         try {
-            $y = SymfonyYaml::parse($input->getYaml(), SymfonyYaml::PARSE_OBJECT_FOR_MAP);
+            $y = SymfonyYaml::parse($input->getText(), SymfonyYaml::PARSE_OBJECT_FOR_MAP);
             return (new DecodeOutput)->setValue(Decoder::convertFromPHP($y));
         } catch (Exception $e) {
             return (new DecodeOutput)

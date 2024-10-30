@@ -29,11 +29,11 @@ class EncodeOutput extends \Google\Protobuf\Internal\Message
      */
     protected $error_message = '';
     /**
-     * Encoded YAML or JSON string.
+     * Encoded string in JSON (or JSON-compatible YAML).
      *
-     * Generated from protobuf field <code>string result = 3 [json_name = "result"];</code>
+     * Generated from protobuf field <code>string text = 3 [json_name = "text"];</code>
      */
-    protected $result = '';
+    protected $text = '';
 
     /**
      * Constructor.
@@ -45,8 +45,8 @@ class EncodeOutput extends \Google\Protobuf\Internal\Message
      *           Whether an error occurred during encoding.
      *     @type string $error_message
      *           Error message if is_error is true.
-     *     @type string $result
-     *           Encoded YAML or JSON string.
+     *     @type string $text
+     *           Encoded string in JSON (or JSON-compatible YAML).
      * }
      */
     public function __construct($data = NULL) {
@@ -107,27 +107,27 @@ class EncodeOutput extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Encoded YAML or JSON string.
+     * Encoded string in JSON (or JSON-compatible YAML).
      *
-     * Generated from protobuf field <code>string result = 3 [json_name = "result"];</code>
+     * Generated from protobuf field <code>string text = 3 [json_name = "text"];</code>
      * @return string
      */
-    public function getResult()
+    public function getText()
     {
-        return $this->result;
+        return $this->text;
     }
 
     /**
-     * Encoded YAML or JSON string.
+     * Encoded string in JSON (or JSON-compatible YAML).
      *
-     * Generated from protobuf field <code>string result = 3 [json_name = "result"];</code>
+     * Generated from protobuf field <code>string text = 3 [json_name = "text"];</code>
      * @param string $var
      * @return $this
      */
-    public function setResult($var)
+    public function setText($var)
     {
         GPBUtil::checkString($var, True);
-        $this->result = $var;
+        $this->text = $var;
 
         return $this;
     }

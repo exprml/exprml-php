@@ -15,21 +15,21 @@ use UnexpectedValueException;
 class Format
 {
     /**
-     * YAML format.
-     *
-     * Generated from protobuf enum <code>YAML = 0;</code>
-     */
-    const YAML = 0;
-    /**
      * JSON format.
      *
-     * Generated from protobuf enum <code>JSON = 1;</code>
+     * Generated from protobuf enum <code>JSON = 0;</code>
      */
-    const JSON = 1;
+    const JSON = 0;
+    /**
+     * JSON-compatible YAML format.
+     *
+     * Generated from protobuf enum <code>YAML = 1;</code>
+     */
+    const YAML = 1;
 
     private static $valueToName = [
-        self::YAML => 'YAML',
         self::JSON => 'JSON',
+        self::YAML => 'YAML',
     ];
 
     public static function name($value)

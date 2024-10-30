@@ -27,7 +27,7 @@ class Evaluator
         $this->config = $config;
     }
 
-    public function evaluateExpr(EvaluateInput $input): EvaluateOutput
+    public function evaluate(EvaluateInput $input): EvaluateOutput
     {
         try {
             $this->config->getBeforeEvaluate()($input);
@@ -94,7 +94,7 @@ class Evaluator
         return $output;
     }
 
-    public function evaluateEval(EvaluateInput $input): EvaluateOutput
+    private function evaluateEval(EvaluateInput $input): EvaluateOutput
     {
         $st = $input->getDefStack();
         $where = $input->getExpr()->getEval()->getWhere();
@@ -103,13 +103,13 @@ class Evaluator
             $st = DefStack::register($st, $def);
         }
 
-        return $this->evaluateExpr((new EvaluateInput())
+        return $this->evaluate((new EvaluateInput())
             ->setDefStack($st)
             ->setExpr($input->getExpr()->getEval()->getEval())
         );
     }
 
-    public function evaluateScalar(EvaluateInput $input): EvaluateOutput
+    private function evaluateScalar(EvaluateInput $input): EvaluateOutput
     {
         /** @var PBScalar $scalar */
         $scalar = $input->getExpr()->getScalar();
@@ -117,7 +117,7 @@ class Evaluator
             ->setValue($scalar->getScalar());
     }
 
-    public function evaluateRef(EvaluateInput $input): EvaluateOutput
+    private function evaluateRef(EvaluateInput $input): EvaluateOutput
     {
         $ref = $input->getExpr()->getRef();
         $st = DefStack::find($input->getDefStack(), $ref->getIdent());
@@ -130,17 +130,17 @@ class Evaluator
             return $ext($input->getExpr()->getPath(), []);
         }
 
-        return $this->evaluateExpr((new EvaluateInput())
+        return $this->evaluate((new EvaluateInput())
             ->setDefStack($st)
             ->setExpr($st->getDef()->getBody())
         );
     }
 
-    public function evaluateObj(EvaluateInput $input): EvaluateOutput
+    private function evaluateObj(EvaluateInput $input): EvaluateOutput
     {
         $result = [];
         foreach ($input->getExpr()->getObj()->getObj() as $pos => $expr) {
-            $val = $this->evaluateExpr((new EvaluateInput())
+            $val = $this->evaluate((new EvaluateInput())
                 ->setDefStack($input->getDefStack())
                 ->setExpr($expr)
             );
@@ -152,11 +152,11 @@ class Evaluator
         return (new EvaluateOutput())->setValue(Value::obj($result));
     }
 
-    public function evaluateArr(EvaluateInput $input): EvaluateOutput
+    private function evaluateArr(EvaluateInput $input): EvaluateOutput
     {
         $result = [];
         foreach ($input->getExpr()->getArr()->getArr() as $expr) {
-            $val = $this->evaluateExpr((new EvaluateInput())
+            $val = $this->evaluate((new EvaluateInput())
                 ->setDefStack($input->getDefStack())
                 ->setExpr($expr)
             );
@@ -168,18 +168,18 @@ class Evaluator
         return (new EvaluateOutput())->setValue(Value::arr($result));
     }
 
-    public function evaluateJson(EvaluateInput $input): EvaluateOutput
+    private function evaluateJson(EvaluateInput $input): EvaluateOutput
     {
         return (new EvaluateOutput())
             ->setValue($input->getExpr()->getJson()->getJson());
     }
 
-    public function evaluateIter(EvaluateInput $input): EvaluateOutput
+    private function evaluateIter(EvaluateInput $input): EvaluateOutput
     {
         $iter = $input->getExpr()->getIter();
         $forPos = $iter->getPosIdent();
         $forElem = $iter->getElemIdent();
-        $inVal = $this->evaluateExpr((new EvaluateInput())
+        $inVal = $this->evaluate((new EvaluateInput())
             ->setDefStack($input->getDefStack())
             ->setExpr($iter->getCol())
         );
@@ -192,7 +192,7 @@ class Evaluator
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forPos, Value::num((float)$i)));
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forElem, Value::str($c)));
                     if ($iter->hasIf()) {
-                        $ifVal = $this->evaluateExpr((new EvaluateInput())
+                        $ifVal = $this->evaluate((new EvaluateInput())
                             ->setDefStack($st)
                             ->setExpr($iter->getIf())
                         );
@@ -206,7 +206,7 @@ class Evaluator
                             continue;
                         }
                     }
-                    $v = $this->evaluateExpr((new EvaluateInput())
+                    $v = $this->evaluate((new EvaluateInput())
                         ->setDefStack($st)
                         ->setExpr($iter->getDo())
                     );
@@ -223,7 +223,7 @@ class Evaluator
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forPos, Value::num((float)$i)));
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forElem, $elemVal));
                     if ($iter->hasIf()) {
-                        $ifVal = $this->evaluateExpr((new EvaluateInput())
+                        $ifVal = $this->evaluate((new EvaluateInput())
                             ->setDefStack($st)
                             ->setExpr($iter->getIf())
                         );
@@ -237,7 +237,7 @@ class Evaluator
                             continue;
                         }
                     }
-                    $v = $this->evaluateExpr((new EvaluateInput())
+                    $v = $this->evaluate((new EvaluateInput())
                         ->setDefStack($st)
                         ->setExpr($iter->getDo())
                     );
@@ -256,7 +256,7 @@ class Evaluator
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forPos, Value::str($key)));
                     $st = DefStack::register($st, DefStack::newDefinition($input->getExpr()->getPath(), $forElem, $val));
                     if ($iter->hasIf()) {
-                        $ifVal = $this->evaluateExpr((new EvaluateInput())
+                        $ifVal = $this->evaluate((new EvaluateInput())
                             ->setDefStack($st)
                             ->setExpr($iter->getIf())
                         );
@@ -270,7 +270,7 @@ class Evaluator
                             continue;
                         }
                     }
-                    $v = $this->evaluateExpr((new EvaluateInput())
+                    $v = $this->evaluate((new EvaluateInput())
                         ->setDefStack($st)
                         ->setExpr($iter->getDo())
                     );
@@ -285,10 +285,10 @@ class Evaluator
         }
     }
 
-    public function evaluateElem(EvaluateInput $input): EvaluateOutput
+    private function evaluateElem(EvaluateInput $input): EvaluateOutput
     {
         $elem = $input->getExpr()->getElem();
-        $getVal = $this->evaluateExpr((new EvaluateInput())
+        $getVal = $this->evaluate((new EvaluateInput())
             ->setDefStack($input->getDefStack())
             ->setExpr($elem->getGet())
         );
@@ -296,7 +296,7 @@ class Evaluator
             return $getVal;
         }
         $pos = $getVal->getValue();
-        $fromVal = $this->evaluateExpr((new EvaluateInput())
+        $fromVal = $this->evaluate((new EvaluateInput())
             ->setDefStack($input->getDefStack())
             ->setExpr($elem->getFrom())
         );
@@ -346,7 +346,7 @@ class Evaluator
         }
     }
 
-    public function evaluateCall(EvaluateInput $input): EvaluateOutput
+    private function evaluateCall(EvaluateInput $input): EvaluateOutput
     {
         $call = $input->getExpr()->getCall();
         $st = DefStack::find($input->getDefStack(), $call->getIdent());
@@ -358,7 +358,7 @@ class Evaluator
             $ext = $this->config->getExtension()[$call->getIdent()];
             $args = [];
             foreach ($call->getArgs() as $argName => $argExpr) {
-                $argVal = $this->evaluateExpr((new EvaluateInput())
+                $argVal = $this->evaluate((new EvaluateInput())
                     ->setDefStack($input->getDefStack())
                     ->setExpr($argExpr)
                 );
@@ -378,7 +378,7 @@ class Evaluator
             }
             /** @var Expr $arg */
             $arg = $call->getArgs()[$argName];
-            $argVal = $this->evaluateExpr((new EvaluateInput())
+            $argVal = $this->evaluate((new EvaluateInput())
                 ->setDefStack($input->getDefStack())
                 ->setExpr($arg)
             );
@@ -392,23 +392,23 @@ class Evaluator
             ));
         }
 
-        return $this->evaluateExpr((new EvaluateInput())
+        return $this->evaluate((new EvaluateInput())
             ->setDefStack($st)
             ->setExpr($def->getBody())
         );
     }
 
-    public function evaluateCases(EvaluateInput $input): EvaluateOutput
+    private function evaluateCases(EvaluateInput $input): EvaluateOutput
     {
         $cases = $input->getExpr()->getCases()->getCases();
         foreach ($cases as $case) {
             if ($case->getIsOtherwise()) {
-                return $this->evaluateExpr((new EvaluateInput())
+                return $this->evaluate((new EvaluateInput())
                     ->setDefStack($input->getDefStack())
                     ->setExpr($case->getOtherwise())
                 );
             } else {
-                $boolVal = $this->evaluateExpr((new EvaluateInput())
+                $boolVal = $this->evaluate((new EvaluateInput())
                     ->setDefStack($input->getDefStack())
                     ->setExpr($case->getWhen())
                 );
@@ -419,7 +419,7 @@ class Evaluator
                     return Evaluator::errorUnexpectedType($case->getWhen()->getPath(), $boolVal->getValue()->getType(), [Type::BOOL]);
                 }
                 if ($boolVal->getValue()->getBool()) {
-                    return $this->evaluateExpr((new EvaluateInput())
+                    return $this->evaluate((new EvaluateInput())
                         ->setDefStack($input->getDefStack())
                         ->setExpr($case->getThen())
                     );
@@ -429,10 +429,10 @@ class Evaluator
         return Evaluator::errorCasesNotExhaustive(Path::append($input->getExpr()->getPath(), "cases"));
     }
 
-    public function evaluateOpUnary(EvaluateInput $input): EvaluateOutput
+    private function evaluateOpUnary(EvaluateInput $input): EvaluateOutput
     {
         $op = $input->getExpr()->getOpUnary();
-        $o = $this->evaluateExpr((new EvaluateInput())
+        $o = $this->evaluate((new EvaluateInput())
             ->setDefStack($input->getDefStack())
             ->setExpr($op->getOperand())
         );
@@ -490,17 +490,17 @@ class Evaluator
         }
     }
 
-    public function evaluateOpBinary(EvaluateInput $input): EvaluateOutput
+    private function evaluateOpBinary(EvaluateInput $input): EvaluateOutput
     {
         $op = $input->getExpr()->getOpBinary();
-        $ol = $this->evaluateExpr((new EvaluateInput())
+        $ol = $this->evaluate((new EvaluateInput())
             ->setDefStack($input->getDefStack())
             ->setExpr($op->getLeft())
         );
         if ($ol->getStatus() !== EvaluateOutput\Status::OK) {
             return $ol;
         }
-        $or = $this->evaluateExpr((new EvaluateInput())
+        $or = $this->evaluate((new EvaluateInput())
             ->setDefStack($input->getDefStack())
             ->setExpr($op->getRight())
         );
@@ -568,12 +568,12 @@ class Evaluator
         }
     }
 
-    public function evaluateOpVariadic(EvaluateInput $input): EvaluateOutput
+    private function evaluateOpVariadic(EvaluateInput $input): EvaluateOutput
     {
         $op = $input->getExpr()->getOpVariadic();
         $operands = [];
         foreach ($op->getOperands() as $elem) {
-            $val = $this->evaluateExpr((new EvaluateInput())
+            $val = $this->evaluate((new EvaluateInput())
                 ->setDefStack($input->getDefStack())
                 ->setExpr($elem)
             );

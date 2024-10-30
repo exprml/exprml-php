@@ -21,9 +21,9 @@ class Encoder
                 $flags = SymfonyYaml::DUMP_OBJECT_AS_MAP
                     | SymfonyYaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE
                     | SymfonyYaml::DUMP_MULTI_LINE_LITERAL_BLOCK;
-                return $r->setResult(SymfonyYaml::dump($y, 10, 2, $flags));
+                return $r->setText(SymfonyYaml::dump($y, 10, 2, $flags));
             } else {
-                return $r->setResult(json_encode($y, JSON_THROW_ON_ERROR));
+                return $r->setText(json_encode($y, JSON_THROW_ON_ERROR));
             }
         } catch (Exception $e) {
             return (new EncodeOutput)

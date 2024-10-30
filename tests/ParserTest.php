@@ -49,7 +49,7 @@ class ParserTest extends TestCase
      */
     public function testParse_Error(ParserTestcase $testcase)
     {
-        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setText($testcase->inputYaml));
         $this->assertFalse($decodeResult->getIsError());
 
         $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));

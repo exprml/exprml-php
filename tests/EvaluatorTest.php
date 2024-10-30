@@ -48,7 +48,7 @@ class EvaluatorTest extends TestCase
                 if (!array_key_exists($key, $testcases)) {
                     $testcases[$key] = new EvaluatorTestcase;
                 }
-                $yaml = (new Decoder())->decode((new DecodeInput())->setYaml(file_get_contents($path)));
+                $yaml = (new Decoder())->decode((new DecodeInput())->setText(file_get_contents($path)));
                 assert(!$yaml->getIsError(), $yaml->getErrorMessage());
 
                 if ($yaml->getValue()->getObj()->offsetExists("want_value")) {
@@ -100,14 +100,14 @@ class EvaluatorTest extends TestCase
      */
     public function testEvaluate(EvaluatorTestcase $testcase)
     {
-        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setText($testcase->inputYaml));
         $this->assertFalse($decodeResult->getIsError());
 
         $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
         $this->assertFalse($parseResult->getIsError());
 
         $sut = new Evaluator(new Config());
-        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $got = $sut->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
 
         if ($testcase->wantError) {
             $this->assertNotEquals(EvaluateOutput\Status::OK, $got->getStatus());
@@ -127,7 +127,7 @@ class EvaluatorTest extends TestCase
      */
     public function testEvaluate_Extension(EvaluatorExtensionTestcase $testcase)
     {
-        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml($testcase->inputYaml));
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setText($testcase->inputYaml));
         $this->assertFalse($decodeResult->getIsError());
 
         $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
@@ -140,7 +140,7 @@ class EvaluatorTest extends TestCase
                     ->setObj($args));
             }
         ]));
-        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $got = $sut->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
         $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
         $msg = $this->checkValueEqual([], $testcase->wantValue, $got->getValue());
         if ($msg != null) {
@@ -151,7 +151,7 @@ class EvaluatorTest extends TestCase
     public function testEvaluate_BeforeEvaluate()
     {
         $evalPaths = [];
-        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml('cat: ["`Hello`", "`, `", "`ExprML`", "`!`"]'));
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setText('cat: ["`Hello`", "`, `", "`ExprML`", "`!`"]'));
         $this->assertFalse($decodeResult->getIsError());
 
         $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
@@ -162,7 +162,7 @@ class EvaluatorTest extends TestCase
                 $evalPaths[] = \Exprml\Path::format($input->getExpr()->getPath());
             }
         ));
-        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $got = $sut->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
         $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
         $this->assertEquals([
             "/",
@@ -176,7 +176,7 @@ class EvaluatorTest extends TestCase
     public function testEvaluate_AfterEvaluate()
     {
         $evalTypes = [];
-        $decodeResult = (new Decoder())->decode((new DecodeInput())->setYaml('cat: ["`Hello`", "`, `", "`ExprML`", "`!`"]'));
+        $decodeResult = (new Decoder())->decode((new DecodeInput())->setText('cat: ["`Hello`", "`, `", "`ExprML`", "`!`"]'));
         $this->assertFalse($decodeResult->getIsError());
 
         $parseResult = (new Parser())->parse((new ParseInput())->setValue($decodeResult->getValue()));
@@ -187,7 +187,7 @@ class EvaluatorTest extends TestCase
                 $evalTypes[] = $output->getValue()->getType();
             }
         ));
-        $got = $sut->evaluateExpr((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
+        $got = $sut->evaluate((new EvaluateInput())->setExpr($parseResult->getExpr())->setDefStack(new DefStack()));
         $this->assertEquals(EvaluateOutput\Status::OK, $got->getStatus());
         $this->assertEquals([
             Type::STR,
