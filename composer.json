@@ -2,7 +2,7 @@
   "name": "exprml/exprml-php",
   "description": "The ExprML Interpreter in PHP",
   "license": "BSD-2-Clause",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "require": {
     "google/protobuf": "^4.28",
     "symfony/yaml": "^5.4.44",
